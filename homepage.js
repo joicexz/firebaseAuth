@@ -21,32 +21,22 @@ const db = getFirestore(); //configura o firestore
 
 //monitora o estado de autenticação do usuário
 onAuthStateChanged(auth, (user) => {
+    if (!user) return;
     //busca o id do usuário autenticado salvo no localStorage
-    const loggedInUserId = localStorage.getItem('loggedInUserId');
+    const loggedInUserId = localStorage.getItem('loggedInUserId') || user.uid;
+    const docRef = doc(db, "users", loggedInUserId);
 
     //se o ID estiver no localStorage, tenta obter os dados do Firestore
-    if (loggedInUserId) {
-        console.log(user);
-        const docRef = doc(db, "users", loggedInUserId); //referência ao documento do usuário no firestore
-
-        getDoc(docRef) //Busca o documento
-            .then((docSnap) => {
-                //se o documento existir, exibe os dados na interface
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    document.getElementById('loggedUserFName').innerText = userData.firstName;
-                    document.getElementById('loggedUserEmail').innerText = userData.email;
-                    document.getElementById('loggedUserLName').innerText = userData.lastName;
-                } else {
-                    console.log("ID não encontrado no Documento");
-                }
-            })
-            .catch((error) => {
-                console.log("documento não encontrado");
-            });
-    } else {
-        console.log("ID de usuário não encontrado no localStorage");
-    }
+     getDoc(docRef)
+      .then((docSnap) => {
+          if (docSnap.exists()) {
+              const userData = docSnap.data();
+              document.getElementById('loggedUserFName').innerText = userData.firstName || '';
+              document.getElementById('loggedUserLName').innerText = userData.lastName || '';
+              document.getElementById('loggedUserEmail').innerText = userData.email || '';
+          }
+      })
+      .catch((error) => console.error("Erro ao buscar dados:", error));
 });
 
 //Lógica de Logout

@@ -7,9 +7,7 @@ const googleButton = document.getElementById('btn-google');
 
 import { googleSignIn } from './firebaseauth.js';
 
-googleButton.addEventListener('click', function () {
-    console.log('Google button clicked');
-    
+googleButton.addEventListener('click', function () {    
     googleSignIn()
         .then(() => {
             alert('Login com Google realizado com sucesso!');

@@ -108,10 +108,11 @@ signIn.addEventListener('click', (event) => {
 function googleSignIn() {
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
+    const db = getFirestore();
+
     return signInWithPopup(auth, provider)
         .then((result) => {
             const user = result.user;
-            const db = getFirestore();
 
             localStorage.setItem('loggedInUserId', user.uid);
 
@@ -120,9 +121,17 @@ function googleSignIn() {
                 firstName: user.displayName?.split(" ")[0] || "",
                 lastName: user.displayName?.split(" ")[1] || ""
             };
+
             const docRef = doc(db, "users", user.uid);
-            return setDoc(docRef, userData, { merge: true });
-        });
+            return setDoc(docRef, userData, { merge: true })
+                .then(() => {
+                    console.log("Dados do usuário salvos no Firestore!");
+                    window.location.href = 'homepage.html';
+                })
+                .catch((error) => console.error("Erro ao salvar dados:", error));
+        })
+        .catch((error) => console.error("Erro no login com Google:", error));
 }
+
 
 export { googleSignIn };
